@@ -50,7 +50,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/:id/redeem", async (req, res) => {
+router.post("/:id/redeem", requireAuth, async (req, res) => {
   try {
     const reward = await prisma.reward.findFirst({
       where: { id: req.params.id, customer: { ownerId: req.user.id } },

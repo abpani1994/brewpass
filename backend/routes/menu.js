@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
   try {
     const { name, category, priceCents, modifiers } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ error: "Item name is required" });
@@ -39,7 +39,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", requireAuth, async (req, res) => {
   try {
     const existing = await prisma.menuItem.findFirst({
       where: { id: req.params.id, ownerId: req.user.id },
@@ -62,7 +62,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAuth, async (req, res) => {
   try {
     const existing = await prisma.menuItem.findFirst({
       where: { id: req.params.id, ownerId: req.user.id },

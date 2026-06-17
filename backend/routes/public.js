@@ -38,9 +38,19 @@ router.get("/usual/:token", async (req, res) => {
 });
 
 // Place a pre-arrival order. payMethod: "pay_now" | "pay_at_store".
+// Public route by design — the unguessable invite token in the URL is the
+// credential. Mutations are protected by explicit input validation + the /api
+// rate limiter mounted in server.js.
 router.post("/order/:token", async (req, res) => {
   try {
-    const { payMethod } = req.body;
+    const { payMethod } = req.body || {};
+    const allowedMethods = ["pay_now", "pay_at_store"];
+    if (typeof payMethod !== "string" || !allowedMethods.includes(payMethod)) {
+      return res.status(400).json({ error: "Choose a valid payment method" });
+    }
+    if (typeof req.params.token !== "string" || !req.params.token) {
+      return res.status(400).json({ error: "Invalid order link" });
+    }
     const customer = await prisma.customer.findUnique({
       where: { inviteToken: req.params.token },
     });

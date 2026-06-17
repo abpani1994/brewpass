@@ -44,33 +44,30 @@ export const register = (payload) => request("/auth/register", { method: "POST",
 export const login = (payload) => request("/auth/login", { method: "POST", body: payload, auth: false });
 export const fetchMe = () => request("/auth/me");
 
-// Menu
 export const fetchMenu = () => request("/menu");
 export const createMenuItem = (payload) => request("/menu", { method: "POST", body: payload });
-export const updateMenuItem = (id, payload) => request(`/menu/${id}`, { method: "PUT", body: payload });
-export const deleteMenuItem = (id) => request(`/menu/${id}`, { method: "DELETE" });
+export const updateMenuItem = (id, payload) => request(`/menu/${encodeURIComponent(id)}`, { method: "PUT", body: payload });
+export const deleteMenuItem = (id) => request(`/menu/${encodeURIComponent(id)}`, { method: "DELETE" });
 
-// Customers
 export const fetchCustomers = () => request("/customers");
 export const createCustomer = (payload) => request("/customers", { method: "POST", body: payload });
-export const updateCustomer = (id, payload) => request(`/customers/${id}`, { method: "PUT", body: payload });
-export const sendInvite = (id) => request(`/customers/${id}/invite`, { method: "POST" });
+export const updateCustomer = (id, payload) => request(`/customers/${encodeURIComponent(id)}`, { method: "PUT", body: payload });
+export const sendInvite = (id) => request(`/customers/${encodeURIComponent(id)}/invite`, { method: "POST" });
+
 
 // Orders
+// Orders
 export const fetchOrders = () => request("/orders");
-export const updateOrderStatus = (id, status) => request(`/orders/${id}/status`, { method: "PUT", body: { status } });
+export const updateOrderStatus = (id, status) => request(`/orders/${encodeURIComponent(id)}/status`, { method: "PUT", body: { status } });
 
 // Dashboard
 export const fetchDashboard = () => request("/dashboard");
-
 // Rewards
 export const fetchRewards = () => request("/rewards");
-export const redeemReward = (id) => request(`/rewards/${id}/redeem`, { method: "POST" });
+export const redeemReward = (id) => request(`/rewards/${encodeURIComponent(id)}/redeem`, { method: "POST" });
 
 // SMS outbox
-export const fetchOutbox = () => request("/sms/outbox");
-
 // Public PWA
-export const fetchUsual = (token) => request(`/public/usual/${token}`, { auth: false });
+export const fetchUsual = (token) => request(`/public/usual/${encodeURIComponent(token)}`, { auth: false });
 export const placeOrder = (token, payMethod) =>
-  request(`/public/order/${token}`, { method: "POST", body: { payMethod }, auth: false });
+  request(`/public/order/${encodeURIComponent(token)}`, { method: "POST", body: { payMethod }, auth: false });

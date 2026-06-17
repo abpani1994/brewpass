@@ -39,27 +39,33 @@ export async function createCheckoutSession(order, customerName) {
   });
   return session;
 }
-
-// Stripe webhook — raw body parsing wired in server.js before json middleware.
+// Stripe webhook — authenticated via Stripe signature verification (not JWT).
+// Raw body parsing is wired in server.js before json middleware.
 router.post("/webhook", async (req, res) => {
   if (!stripe) return res.status(503).json({ error: "payments not configured" });
+  // Require a configured signing secret so the webhook is authenticated.
+  if (!WEBHOOK_SECRET) {
+    return res.status(503).json({ error: "webhook signing secret not configured" });
+  }
   let event;
   try {
-    if (WEBHOOK_SECRET) {
-      const sig = req.headers["stripe-signature"];
-      event = stripe.webhooks.constructEvent(req.body, sig, WEBHOOK_SECRET);
-    } else {
-      event = JSON.parse(req.body.toString());
-    }
+    const sig = req.headers["stripe-signature"];
+    if (!sig) return res.status(400).json({ error: "Missing stripe-signature header" });
+    event = stripe.webhooks.constructEvent(req.body, sig, WEBHOOK_SECRET);
   } catch (err) {
-    return res.status(400).json({ error: `Webhook error: ${(process.env.NODE_ENV === "production" ? "Internal server error" : err.message)}` });
+    return res.status(400).json({ error: `Webhook error: ${(process.env.NODE_ENV === "production" ? "Invalid signature" : err.message)}` });
+  }
+
+  // Validate the parsed event shape before using it.
+  if (!event || typeof event.type !== "string" || !event.data || typeof event.data.object !== "object") {
+    return res.status(400).json({ error: "Malformed event payload" });
   }
 
   try {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
       const orderId = session.metadata?.orderId;
-      if (orderId) {
+      if (orderId && typeof orderId === "string") {
         await prisma.order.updateMany({
           where: { id: orderId },
           data: { payStatus: "paid", stripeSessionId: session.id },

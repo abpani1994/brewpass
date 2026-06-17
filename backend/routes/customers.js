@@ -37,7 +37,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
   try {
     const { name, phone, usualOrder, usualItemId } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ error: "Customer name is required" });
@@ -59,7 +59,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", requireAuth, async (req, res) => {
   try {
     const existing = await prisma.customer.findFirst({
       where: { id: req.params.id, ownerId: req.user.id },
@@ -78,7 +78,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.post("/:id/invite", async (req, res) => {
+router.post("/:id/invite", requireAuth, async (req, res) => {
   try {
     const customer = await prisma.customer.findFirst({
       where: { id: req.params.id, ownerId: req.user.id },

@@ -83,7 +83,7 @@ export default function MagicFeatures(props) {
     if (document.getElementById(id)) return;
     const style = document.createElement("style");
     style.id = id;
-    style.innerHTML = `
+    style.textContent = `
       @keyframes mf-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6%); } }
       @keyframes mf-pulse { 0%,100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.08); opacity: 1; } }
       @keyframes mf-tilt { 0% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } 100% { transform: rotate(-2deg); } }

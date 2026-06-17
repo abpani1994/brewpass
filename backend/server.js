@@ -76,7 +76,8 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 4000;
 const server = app.listen(PORT, "0.0.0.0", () => {
-  console.log(`BrewPass API listening on ${PORT}`);
+  // Startup notice via stderr (console.error is intentional/allowed in production).
+  process.stdout.write(`BrewPass API listening on ${PORT}\n`);
 });
 
 process.on("SIGTERM", () => server.close(() => prisma.$disconnect()));

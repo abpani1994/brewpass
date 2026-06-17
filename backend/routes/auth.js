@@ -6,10 +6,12 @@ import { DEFAULT_MENU } from "../utils/seed.js";
 
 const router = Router();
 
+// Public route by design (registration). Protected by explicit input validation
+// + the /api/auth rate limiter mounted in server.js.
 router.post("/register", async (req, res) => {
   try {
-    const { email, password, cafeName } = req.body;
-    if (!email || !password || !cafeName)
+    const { email, password, cafeName } = req.body || {};
+    if (typeof email !== "string" || typeof password !== "string" || typeof cafeName !== "string" || !email || !password || !cafeName)
       return res.status(400).json({ error: "Email, password and cafe name are required" });
     if (password.length < 8)
       return res.status(400).json({ error: "Password must be at least 8 characters" });
@@ -39,10 +41,13 @@ router.post("/register", async (req, res) => {
   }
 });
 
+// Public route by design (login). Protected by explicit input validation + the
+// /api/auth rate limiter mounted in server.js.
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: "Email and password are required" });
+    const { email, password } = req.body || {};
+    if (typeof email !== "string" || typeof password !== "string" || !email || !password)
+      return res.status(400).json({ error: "Email and password are required" });
     const owner = await prisma.owner.findUnique({ where: { email: email.toLowerCase() } });
     if (!owner) return res.status(401).json({ error: "No account with that email" });
     const ok = await bcrypt.compare(password, owner.passwordHash);

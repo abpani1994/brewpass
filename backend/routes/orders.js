@@ -51,7 +51,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.put("/:id/status", async (req, res) => {
+router.put("/:id/status", requireAuth, async (req, res) => {
   try {
     const { status } = req.body;
     const allowed = ["preparing", "ready", "collected"];
